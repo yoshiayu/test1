@@ -1,15 +1,8 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Category(models.Model):
-    """カテゴリーテーブル
-
-    Args:
-        models (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
 
     name = models.CharField(max_length=255)
 
@@ -18,14 +11,6 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    """商品テーブル
-
-    Args:
-        models (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
 
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -37,3 +22,25 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Favorite(models.Model):
+    """お気に入り商品を保存するモデル"""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.name}"
+
+
+class SearchHistory(models.Model):
+    """検索履歴モデル"""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    query = models.CharField(max_length=255)
+    searched_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.query} ({self.searched_at})"

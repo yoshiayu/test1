@@ -44,7 +44,9 @@ ROOT_URLCONF = "search_app.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [
+            BASE_DIR / "templates"
+        ],  # テンプレートフォルダが指定されていることを確認
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -121,3 +123,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 USE_THOUSAND_SEPARATOR = True
 THOUSAND_SEPARATOR = ","
+
+# ユーザー認証後のリダイレクト先
+LOGIN_REDIRECT_URL = "product_list"
+LOGOUT_REDIRECT_URL = "login"
+
+# ログインページのURL
+LOGIN_URL = "login"

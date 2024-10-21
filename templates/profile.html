@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>プロフィール</title>
+</head>
+<body>
+    <h2>プロフィール</h2>
+    <p>ユーザー名: {{ user.username }}</p>
+    <p>Email: {{ user.email }}</p>
+    <p><a href="{% url 'change_password' %}">パスワード変更</a></p>
+    <p><a href="{% url 'logout' %}">ログアウト</a></p>
+</body>
+</html>
