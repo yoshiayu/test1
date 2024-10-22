@@ -17,9 +17,7 @@ class Product(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, default=1
     )  # 1はカテゴリID
-    image = models.ImageField(
-        upload_to="products/", blank=True, null=True
-    )  # 画像フィールドを追加
+    image = models.ImageField(upload_to="images/", blank=True, null=True)
 
     def __str__(self):
         return self.name
