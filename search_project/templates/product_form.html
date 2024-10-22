@@ -45,8 +45,9 @@
                 <!-- 商品フォーム -->
                 <div class="form-container">
                     <!-- 画像ファイルをアップロードするために enctype="multipart/form-data" を追加 -->
-                    <form method="POST" enctype="multipart/form-data">
+                    <form method="POST" enctype="multipart/form-data">  <!-- 画像ファイルアップロードに必要な multipart/form-data -->
                         {% csrf_token %}
+                        
                         
                         <!-- 商品名 -->
                         <div class="mb-4">
@@ -84,7 +85,7 @@
                         
                         <div class="d-flex justify-content-between mt-4">
                             <!-- 保存ボタン -->
-                            <button type="submit" class="btn btn-primary w-50">保存</button>
+                            <button type="submit" class="btn btn-primary">保存</button>
                             
                             <!-- 最初の画面に戻るボタン -->
                             <a href="{% url 'search_view' %}" class="btn btn-secondary w-50 ms-2">最初の画面に戻る</a>

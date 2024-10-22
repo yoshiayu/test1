@@ -10,13 +10,27 @@ from django.shortcuts import render, redirect
 
 def product_create(request):
     if request.method == "POST":
-        form = ProductForm(request.POST)
+        form = ProductForm(request.POST, request.FILES)  # request.FILES を追加
         if form.is_valid():
             form.save()
             return redirect("product_list")
     else:
         form = ProductForm()
     return render(request, "product_form.html", {"form": form})
+
+
+def product_update(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == "POST":
+        form = ProductForm(
+            request.POST, request.FILES, instance=product
+        )  # request.FILES を追加
+        if form.is_valid():
+            form.save()
+            return redirect("product_detail", pk=product.pk)
+    else:
+        form = ProductForm(instance=product)
+    return render(request, "product_form.html", {"form": form, "product": product})
 
 
 def product_detail(request, pk):
@@ -94,7 +108,7 @@ def search_view(request):
         results = results.order_by("-price")
 
     # クエリセットをリストに変換せず、直接Paginatorに渡す
-    paginator = Paginator(results, 9)
+    paginator = Paginator(results, 8)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 

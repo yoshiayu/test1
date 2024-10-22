@@ -14,11 +14,11 @@ class SearchForm(forms.Form):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ["name", "description", "price", "category", "image"]  # 'image' を追加
+        fields = ["name", "description", "price", "category", "image"]
         labels = {
             "name": "商品名",
             "description": "説明",
             "price": "価格",
             "category": "カテゴリ",
-            "image": "商品画像",  # 画像のラベルを追加
+            "image": "商品画像",
         }

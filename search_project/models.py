@@ -1,5 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
+import os
+from uuid import uuid4
+
+
+def upload_to(instance, filename):
+    ext = filename.split(".")[-1]  # ファイルの拡張子を保持
+    filename = f"{uuid4().hex}.{ext}"  # ランダムなファイル名を生成
+    return os.path.join("images", filename)
 
 
 class Category(models.Model):
@@ -14,10 +22,10 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    category = models.ForeignKey(
-        Category, on_delete=models.CASCADE, default=1
-    )  # 1はカテゴリID
-    image = models.ImageField(upload_to="images/", blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
+    image = models.ImageField(
+        upload_to=upload_to, blank=True, null=True
+    )  # 画像フィールドを修正
 
     def __str__(self):
         return self.name
