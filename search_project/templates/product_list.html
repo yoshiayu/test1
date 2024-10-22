@@ -10,10 +10,35 @@
     {% load humanize %}
 </head>
 <body>
-    <div class="text-center mt-4">
-        <a href="{% url 'search_history' %}" class="btn btn-secondary">検索履歴を見る</a>
-    </div>
-    
+    <!-- ヘッダー -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'product_list' %}">商品編集</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'profile' %}">プロフィール</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">ログアウト</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">ログイン</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">登録</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
     <div class="container mt-5">
         <h1 class="text-center mb-4">商品一覧</h1>
 
@@ -26,7 +51,19 @@
                         <!-- 価格を整数型に変換してカンマ区切りを適用 -->
                         <p>{{ product.price|floatformat:0|intcomma }}円</p>
                     </div>
-                    <div>
+                    <div class="d-flex justify-content-end align-items-center">
+                        <!-- お気に入りボタン -->
+                        {% if user.is_authenticated %}
+                            {% if product in user.favorite_set.all %}
+                                <a href="{% url 'favorite_remove' product.id %}" class="btn btn-danger me-2">
+                                    お気に入り解除
+                                </a>
+                            {% else %}
+                                <a href="{% url 'favorite_add' product.id %}" class="btn btn-outline-primary me-2">
+                                    お気に入りに追加
+                                </a>
+                            {% endif %}
+                        {% endif %}
                         <!-- 編集ボタン -->
                         <a href="{% url 'product_update' product.id %}" class="btn btn-primary me-2">編集</a>
 
@@ -47,6 +84,11 @@
             <a href="{% url 'search_view' %}" class="btn btn-secondary">最初の画面に戻る</a>
         </div>
     </div>
+
+    <!-- フッター -->
+    <footer class="text-center mt-5">
+        <p>© 2024 商品検索アプリ. 2年次提出物.</p>
+    </footer>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>

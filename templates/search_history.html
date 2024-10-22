@@ -1,3 +1,4 @@
+<!-- search_history.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -12,14 +13,17 @@
 
         <ul class="list-group">
             {% for history in histories %}
-                <li class="list-group-item">
-                    <p>検索キーワード: {{ history.query }} （{{ history.searched_at }}）</p>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <p class="mb-0">検索キーワード: {{ history.query }} （{{ history.searched_at }}）</p>
+                    <!-- 削除ボタン -->
+                    <a href="{% url 'delete_search_history' history.id %}" class="btn btn-danger btn-sm">削除</a>
                 </li>
             {% empty %}
                 <li class="list-group-item">検索履歴がありません。</li>
             {% endfor %}
         </ul>
 
+        <!-- トップページに戻るボタン -->
         <div class="text-center mt-4">
             <a href="{% url 'search_view' %}" class="btn btn-primary">トップページに戻る</a>
         </div>

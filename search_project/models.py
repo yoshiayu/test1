@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 
 
 class Category(models.Model):
-
     name = models.CharField(max_length=255)
 
     def __str__(self):
@@ -11,7 +10,6 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-
     id = models.BigAutoField(primary_key=True)
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -19,6 +17,9 @@ class Product(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, default=1
     )  # 1はカテゴリID
+    image = models.ImageField(
+        upload_to="products/", blank=True, null=True
+    )  # 画像フィールドを追加
 
     def __str__(self):
         return self.name

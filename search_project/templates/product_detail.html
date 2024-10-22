@@ -34,6 +34,25 @@
                             <a href="{% url 'product_list' %}" class="btn btn-primary">商品一覧に戻る</a>
                         </div>
                     </div>
+                    <!-- 商品表示部分 -->
+<div class="card mb-3">
+    <div class="card-body">
+        <h5 class="card-title">{{ product.name }}</h5>
+        <p class="card-text">{{ product.price }} 円</p>
+
+        <!-- お気に入り追加/削除ボタン -->
+        {% if user.is_authenticated %}
+            {% if product in user.favorite_set.all %}
+                <!-- 既にお気に入りの場合、削除ボタンを表示 -->
+                <a href="{% url 'favorite_remove' product.id %}" class="btn btn-danger">お気に入りから削除</a>
+            {% else %}
+                <!-- お気に入りにない場合、追加ボタンを表示 -->
+                <a href="{% url 'favorite_add' product.id %}" class="btn btn-primary">お気に入りに追加</a>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+
                 </div>
             </div>
         </div>

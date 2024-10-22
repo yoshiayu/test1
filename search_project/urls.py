@@ -9,6 +9,8 @@ from .views import (
     profile,
     change_password,
 )
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("", views.search_view, name="search_view"),
@@ -35,4 +37,13 @@ urlpatterns = [
     path("profile/", profile, name="profile"),
     path("change_password/", change_password, name="change_password"),
     path("search_history/", search_history_view, name="search_history"),
-]
+    path("search_history/", views.search_history_view, name="search_history"),
+    path(
+        "search_history/delete/<int:history_id>/",
+        views.delete_search_history,
+        name="delete_search_history",
+    ),
+    path("favorites/", views.favorite_list, name="favorite_list"),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# if settings.DEBUG:
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

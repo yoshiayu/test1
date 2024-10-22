@@ -93,13 +93,20 @@ def search_view(request):
         results = results.order_by("-price")
 
     # クエリセットをリストに変換せず、直接Paginatorに渡す
-    paginator = Paginator(results, 10)
+    paginator = Paginator(results, 9)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
     return render(
         request, "search.html", {"form": form, "page_obj": page_obj, "results": results}
     )
+
+
+@login_required
+def favorite_list(request):
+    # ログインしているユーザーのお気に入り商品を取得
+    favorites = Favorite.objects.filter(user=request.user).select_related("product")
+    return render(request, "favorite_list.html", {"favorites": favorites})
 
 
 @login_required
@@ -129,6 +136,13 @@ def search_history_view(request):
     # ログインしているユーザーの検索履歴を取得
     histories = SearchHistory.objects.filter(user=request.user).order_by("-searched_at")
     return render(request, "search_history.html", {"histories": histories})
+
+
+@login_required
+def delete_search_history(request, history_id):
+    history = get_object_or_404(SearchHistory, id=history_id, user=request.user)
+    history.delete()  # 検索履歴を削除
+    return redirect("search_history")
 
 
 # ユーザー登録ビュー
@@ -164,3 +178,17 @@ def change_password(request):
     else:
         form = PasswordChangeForm(request.user)
     return render(request, "change_password.html", {"form": form})
+
+
+def create_product(request):
+    if request.method == "POST":
+        form = ProductForm(
+            request.POST, request.FILES
+        )  # 画像ファイルは request.FILES で受け取る
+        if form.is_valid():
+            form.save()
+            return redirect("product_list")  # 商品一覧などにリダイレクト
+    else:
+        form = ProductForm()
+
+    return render(request, "create_product.html", {"form": form})

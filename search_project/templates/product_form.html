@@ -44,7 +44,8 @@
 
                 <!-- 商品フォーム -->
                 <div class="form-container">
-                    <form method="POST">
+                    <!-- 画像ファイルをアップロードするために enctype="multipart/form-data" を追加 -->
+                    <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         
                         <!-- 商品名 -->
@@ -73,6 +74,12 @@
                                     <option value="{{ value }}" {% if value == form.category.value %}selected{% endif %}>{{ label }}</option>
                                 {% endfor %}
                             </select>
+                        </div>
+
+                        <!-- 画像アップロードフィールドを追加 -->
+                        <div class="mb-4">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">画像</label>
+                            <input type="file" name="image" id="{{ form.image.id_for_label }}" class="form-control">
                         </div>
                         
                         <div class="d-flex justify-content-between mt-4">
