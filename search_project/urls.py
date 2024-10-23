@@ -8,6 +8,7 @@ from .views import (
     register,
     profile,
     change_password,
+    personalized_recommendation,
 )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -43,6 +44,11 @@ urlpatterns = [
         views.delete_search_history,
         name="delete_search_history",
     ),
+    path(
+        "recommendation/",
+        personalized_recommendation,
+        name="personalized_recommendation",
+    ),  # 追加
     path("favorites/", views.favorite_list, name="favorite_list"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:

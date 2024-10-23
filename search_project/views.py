@@ -6,6 +6,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.shortcuts import render, redirect
+from django.db.models import Count, Q
+
+from search_project import models
 
 
 def product_create(request):
@@ -35,8 +38,52 @@ def product_update(request, pk):
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
+    # 同じカテゴリに属する他の商品を取得、現在の商品のIDは除外
+    related_products = Product.objects.filter(category=product.category).exclude(
+        id=product.id
+    )[:4]
 
-    return render(request, "product_detail.html", {"product": product})
+    return render(
+        request,
+        "product_detail.html",
+        {
+            "product": product,
+            "related_products": related_products,  # 関連商品をテンプレートに渡す
+        },
+    )
+
+
+@login_required
+def personalized_recommendation(request):
+    # ユーザーのお気に入り商品を取得
+    favorite_products = Favorite.objects.filter(user=request.user).values_list(
+        "product", flat=True
+    )
+
+    # ユーザーの検索履歴からキーワードを取得
+    search_keywords = SearchHistory.objects.filter(user=request.user).values_list(
+        "query", flat=True
+    )
+
+    # レコメンドのロジック
+    recommended_products = Product.objects.filter(
+        Q(id__in=favorite_products)  # お気に入り商品
+        | Q(name__icontains=models.F("name"))  # 検索履歴に基づく
+    ).distinct()[
+        :10
+    ]  # 上限10件
+
+    return render(
+        request,
+        "personalized_recommendation.html",
+        {"recommended_products": recommended_products},
+    )
+
+
+# def product_detail(request, pk):
+#     product = get_object_or_404(Product, pk=pk)
+
+#     return render(request, "product_detail.html", {"product": product})
 
 
 def product_update(request, pk):

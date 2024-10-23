@@ -1,0 +1,23 @@
+{% load humanize %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>おすすめ商品</title>
+</head>
+<body>
+    <h1>あなたへのおすすめ商品</h1>
+    <div class="recommended-products">
+        {% for product in recommended_products %}
+            <div class="product-card">
+                <h2>{{ product.name }}</h2>
+                <p>{{ product.price }}円</p>
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
