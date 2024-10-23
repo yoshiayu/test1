@@ -203,6 +203,9 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#related-products-section">関連商品</a> <!-- 追加 -->
+                    </li>
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'profile' %}">プロフィール</a>
@@ -222,6 +225,8 @@
             </div>
         </div>
     </nav>
+    
+    
 
     <!-- メインコンテンツ -->
     <div class="container mt-5">
@@ -272,6 +277,23 @@
                 </div>
             </div>
         </form>
+<!-- 関連商品セクション -->
+<h3 id="related-products-section" class="mt-5">関連商品</h3>
+<div class="product-grid">
+    {% for related_product in related_products %}
+    <div class="product-card">
+        {% if related_product.image %}
+        <img src="{{ related_product.image.url }}" alt="{{ related_product.name }}">
+        {% else %}
+        <img src="{% static 'images/no-image.webp' %}" alt="No Image Available">
+        {% endif %}
+        <h2>{{ related_product.name }}</h2>
+        <p>{{ related_product.price|floatformat:0|intcomma }}円</p>
+        <a href="{% url 'product_detail' related_product.id %}" class="btn btn-info">詳細</a>
+    </div>
+    {% endfor %}
+</div>
+
 
         <!-- 商品一覧 -->
         <div class="product-grid mt-4" id="productListContainer" style="display: none;">

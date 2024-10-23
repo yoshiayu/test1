@@ -1,14 +1,16 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Product, Category, Favorite, SearchHistory
-from .forms import ProductForm, SearchForm
+from .models import CartItem, Cart, Product, Category, Favorite, SearchHistory, Review
+from .forms import ProductForm, SearchForm, ReviewForm
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate, update_session_auth_hash
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.db.models import Count, Q
-
+from django.contrib import messages
 from search_project import models
+import stripe
+from django.conf import settings
 
 
 def product_create(request):
@@ -38,19 +40,49 @@ def product_update(request, pk):
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
-    # 同じカテゴリに属する他の商品を取得、現在の商品のIDは除外
-    related_products = Product.objects.filter(category=product.category).exclude(
-        id=product.id
-    )[:4]
+    reviews = product.reviews.all()  # Get all reviews for this product
+    review_form = ReviewForm()
+
+    if request.method == "POST":
+        if request.user.is_authenticated:
+            review_form = ReviewForm(request.POST)
+            if review_form.is_valid():
+                new_review = review_form.save(commit=False)
+                new_review.product = product
+                new_review.user = request.user
+                new_review.save()
+                return redirect("product_detail", pk=product.pk)
+        else:
+            return redirect("login")
 
     return render(
         request,
         "product_detail.html",
-        {
-            "product": product,
-            "related_products": related_products,  # 関連商品をテンプレートに渡す
-        },
+        {"product": product, "reviews": reviews, "review_form": review_form},
     )
+
+
+@login_required
+def submit_review(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+
+    if request.method == "POST":
+        rating = request.POST.get("rating")
+        comment = request.POST.get("comment", "")
+
+        if rating:
+            # Create a new review
+            Review.objects.create(
+                product=product, user=request.user, rating=rating, comment=comment
+            )
+            messages.success(request, "レビューが投稿されました。")
+        else:
+            messages.error(request, "評価を選択してください。")
+
+    return redirect("product_detail", pk=product_id)
+
+
+from django.db.models import Q
 
 
 @login_required
@@ -65,25 +97,22 @@ def personalized_recommendation(request):
         "query", flat=True
     )
 
-    # レコメンドのロジック
+    # 検索履歴に基づいて Q オブジェクトを作成
+    search_conditions = Q()
+    for keyword in search_keywords:
+        search_conditions |= Q(name__icontains=keyword)
+
+    # レコメンドのロジック: お気に入り商品、検索履歴に基づく関連商品
     recommended_products = Product.objects.filter(
         Q(id__in=favorite_products)  # お気に入り商品
-        | Q(name__icontains=models.F("name"))  # 検索履歴に基づく
-    ).distinct()[
-        :10
-    ]  # 上限10件
+        | search_conditions  # 検索履歴に基づく
+    ).distinct()[:10]
 
     return render(
         request,
         "personalized_recommendation.html",
         {"recommended_products": recommended_products},
     )
-
-
-# def product_detail(request, pk):
-#     product = get_object_or_404(Product, pk=pk)
-
-#     return render(request, "product_detail.html", {"product": product})
 
 
 def product_update(request, pk):
@@ -254,3 +283,94 @@ def create_product(request):
         form = ProductForm()
 
     return render(request, "create_product.html", {"form": form})
+
+
+@login_required
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart_item, created = Cart.objects.get_or_create(user=request.user, product=product)
+
+    if not created:
+        cart_item.quantity += 1  # 既にカートにある場合は数量を増やす
+    cart_item.save()
+
+    return redirect("view_cart")  # カート画面にリダイレクト
+
+
+@login_required
+def view_cart(request):
+    cart_items = Cart.objects.filter(user=request.user)
+    total_price = sum(item.product.price * item.quantity for item in cart_items)
+
+    return render(
+        request, "cart.html", {"cart_items": cart_items, "total_price": total_price}
+    )
+
+
+@login_required
+def remove_from_cart(request, cart_item_id):
+    cart_item = get_object_or_404(Cart, id=cart_item_id, user=request.user)
+    cart_item.delete()
+
+    return redirect("view_cart")
+
+
+@login_required
+def checkout(request):
+    cart_items = Cart.objects.filter(user=request.user)
+    total_price = sum(item.product.price * item.quantity for item in cart_items)
+
+    if request.method == "POST":
+        try:
+            # Stripe決済のシミュレーション
+            charge = stripe.Charge.create(
+                amount=int(total_price * 100),  # Stripeは金額をセント単位で扱う
+                currency="jpy",
+                description="Order from ECサイト",
+                source=request.POST["stripeToken"],
+            )
+            # カートをクリア
+            cart_items.delete()
+            return redirect("checkout_success")
+        except stripe.error.StripeError as e:
+            return render(
+                request,
+                "checkout.html",
+                {"error": str(e), "cart_items": cart_items, "total_price": total_price},
+            )
+
+    return render(
+        request, "checkout.html", {"cart_items": cart_items, "total_price": total_price}
+    )
+
+
+@login_required
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    cart_item, created = CartItem.objects.get_or_create(
+        user=request.user, product=product
+    )
+
+    if not created:
+        # 既にカートに入っている場合、数量を1増やす
+        cart_item.quantity += 1
+        cart_item.save()
+
+    return redirect("cart_view")
+
+
+@login_required
+def cart_view(request):
+    cart_items = CartItem.objects.filter(user=request.user)
+    total_price = sum(item.total_price() for item in cart_items)
+
+    return render(
+        request, "cart.html", {"cart_items": cart_items, "total_price": total_price}
+    )
+
+
+@login_required
+def remove_from_cart(request, cart_item_id):
+    cart_item = get_object_or_404(CartItem, id=cart_item_id, user=request.user)
+    cart_item.delete()
+    return redirect("cart_view")

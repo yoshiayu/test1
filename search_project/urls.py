@@ -18,6 +18,11 @@ urlpatterns = [
     path("search/", views.search_view, name="search_view"),
     path("product/new/", views.product_create, name="product_create"),
     path("product/<int:pk>/", views.product_detail, name="product_detail"),
+    path(
+        "product/<int:product_id>/submit_review/",
+        views.submit_review,
+        name="submit_review",
+    ),
     path("product/<int:pk>/edit/", views.product_update, name="product_update"),
     path("product/<int:pk>/delete", views.product_delete, name="product_delete"),
     path("product/", views.product_list, name="product_list"),
@@ -33,6 +38,7 @@ urlpatterns = [
         auth_views.LoginView.as_view(template_name="login.html"),
         name="login",
     ),
+    # path("related-products/", views.related_products, name="related_products"),
     path("accounts/logout/", auth_views.LogoutView.as_view(), name="logout"),
     # プロフィールおよびパスワード変更
     path("profile/", profile, name="profile"),
@@ -50,6 +56,14 @@ urlpatterns = [
         name="personalized_recommendation",
     ),  # 追加
     path("favorites/", views.favorite_list, name="favorite_list"),
+    path("cart/", views.cart_view, name="cart_view"),
+    path("cart/add/<int:product_id>/", views.add_to_cart, name="add_to_cart"),
+    path(
+        "cart/remove/<int:cart_item_id>/",
+        views.remove_from_cart,
+        name="remove_from_cart",
+    ),
+    path("checkout/", views.checkout, name="checkout"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

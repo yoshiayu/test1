@@ -136,3 +136,5 @@ LOGIN_URL = "login"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+STRIPE_SECRET_KEY = "your_stripe_secret_key"
+STRIPE_PUBLISHABLE_KEY = "your_stripe_publishable_key"

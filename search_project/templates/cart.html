@@ -1,0 +1,27 @@
+<!-- cart.html -->
+<h1>カート</h1>
+<table>
+    <tr>
+        <th>商品</th>
+        <th>数量</th>
+        <th>価格</th>
+        <th>合計</th>
+        <th></th>
+    </tr>
+    {% for item in cart_items %}
+    <tr>
+        <td>{{ item.product.name }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.product.price }}円</td>
+        <td>{{ item.total_price }}円</td>
+        <td>
+            <form action="{% url 'remove_from_cart' item.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">削除</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+<h3>合計金額: {{ total_price }}円</h3>
+<a href="{% url 'checkout' %}" class="btn btn-success">購入する</a>
