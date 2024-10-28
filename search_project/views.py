@@ -13,6 +13,16 @@ import stripe
 from django.conf import settings
 
 
+def index(request):
+    return render(
+        request, "index.html", {"test_message": "テンプレートが読み込まれています"}
+    )
+
+
+# def index(request):
+#     return render(request, "index.html")
+
+
 def product_create(request):
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES)  # request.FILES を追加
@@ -374,3 +384,19 @@ def remove_from_cart(request, cart_item_id):
     cart_item = get_object_or_404(CartItem, id=cart_item_id, user=request.user)
     cart_item.delete()
     return redirect("cart_view")
+
+
+def about(request):
+    return render(request, "about.html")
+
+
+def submit(request):
+    return render(request, "submit.html")
+
+
+def privacy_policy(request):
+    return render(request, "privacy_policy.html")
+
+
+def contact(request):
+    return render(request, "contact.html")

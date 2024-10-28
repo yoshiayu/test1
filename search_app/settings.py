@@ -128,7 +128,7 @@ USE_THOUSAND_SEPARATOR = True
 THOUSAND_SEPARATOR = ","
 
 # ユーザー認証後のリダイレクト先
-LOGIN_REDIRECT_URL = "product_list"
+LOGIN_REDIRECT_URL = "/search/"
 LOGOUT_REDIRECT_URL = "login"
 
 # ログインページのURL
