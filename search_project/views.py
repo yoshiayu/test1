@@ -1,3 +1,5 @@
+from datetime import timezone
+from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import CartItem, Cart, Product, Category, Favorite, SearchHistory, Review
 from .forms import ProductForm, SearchForm, ReviewForm
@@ -400,3 +402,33 @@ def privacy_policy(request):
 
 def contact(request):
     return render(request, "contact.html")
+
+
+def terms_of_service(request):
+    return render(request, "terms_of_service.html")
+
+
+def faq(request):
+    return render(request, "faq.html")
+
+
+def search(request):
+    # ���索ワードをクエリパラメータから取得
+    query = request.GET.get("q")
+
+    # ���索ワードが空なら404 ��ージを表示
+    if not query:
+        raise Http404("Search query is required.")
+    # ���索ワードを元に商品を��索
+    products = Product.objects.filter(name__icontains=query)
+
+    # ���索����を記録
+    history, _ = SearchHistory.objects.get_or_create(user=request.user, query=query)
+    history.searched_at = timezone.now()
+    history.save()
+    # ����索結果をレンダリング
+    return render(
+        request,
+        "search_results.html",
+        {"query": query, "products": products},
+    )
