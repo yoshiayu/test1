@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
-    "search_project",
+    "search_app",
 ]
 
 MIDDLEWARE = [
@@ -46,9 +46,7 @@ ROOT_URLCONF = "search_app.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [
-            BASE_DIR / "templates"
-        ],  # テンプレートフォルダが指定されていることを確認
+        "DIRS": [os.path.join(BASE_DIR, "search_app/templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -61,7 +59,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "search_app.wsgi.application"
+WSGI_APPLICATION = "search_project.wsgi.application"
 
 
 # Database
@@ -115,7 +113,7 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATICFILES_DIRS = [
-    BASE_DIR / "static",
+    os.path.join(BASE_DIR, "search_app/static"),
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 

@@ -11,7 +11,7 @@ from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.shortcuts import render, redirect
 from django.db.models import Count, Q
 from django.contrib import messages
-from search_project import models
+from search_app import models
 import stripe
 from django.conf import settings
 
